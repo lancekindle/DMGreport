@@ -3,9 +3,6 @@ include "gbhw.inc"
 ;-------------- INTERRUPT VECTORS ------------------------
 ; specific memory addresses are called when a hardware interrupt triggers
 
-; Vertical-blank triggers each time the screen finishes drawing. Video-RAM
-; (VRAM) is only available during VBLANK. So this is when updating OAM /
-; sprites is executed.
 SECTION "Vblank", ROM0[$0040]
 	reti
 
@@ -32,46 +29,65 @@ SECTION "rom header", ROM0[$0104]
 	NINTENDO_LOGO
 	ROM_HEADER	"0123456789ABCDE"
 
-; safe to include other files begining here. INCLUDE'd files often immediately
-; add more code to the compiled ROM. It's critical that your code does not
-; step over the first $0000 - $014E bytes
+; by convention, *.asm files add code to the ROM when included. *.inc files
+; do not add code. They only define constants or macros. The macros add code
+; to the ROM when called
 
+include	"ibmpc1.inc"	; used to generate ascii characters in our ROM
+include "memory.asm"	; used to copy Monochrome ascii characters to VRAM
 
 code_begins:
 	di	; disable interrupts
 	ld	SP, $FFFF	; set stack to top of HRAM
-; background image is just the nintendo logo. Tile 0x19 is the (R).
-; You can find it on BGB's VRAM Tiles: (right-click) -> other -> VRAM -> Tiles
-; Let's use the (R) as a sprite and move it
+
+	call	lcd_Stop
+
+	; load ascii tiles (inserted below with chr_IBMPC1 macro) into VRAM
+	ld	hl, ascii_tiles	; ROM address where we insert ascii tiles
+	ld	de, _VRAM	; destination. Going to copy ascii to video ram
+	; bc = byte-count. Aka how many bytes to copy
+	ld	bc, ascii_tiles_end - ascii_tiles
+	call	mem_CopyMono	; copies monochrome tiles, specifically
+				; (our ascii set is monochrome)
 
 
-	ld	a,[rIE]
-	or	a, IEF_VBLANK	; --
-	ld	[rIE], a	; Set only Vblank interrupt flag
-	ei			; enable interrupts. Only vblank will trigger
-
-
-	ld	a, [rLCDC]	; fetch LCD Config. (Each bit is a flag)
-	or	LCDCF_OBJON	; enable sprites through "OBJects ON" flag
-	or	LCDCF_OBJ8	; enable 8bit wide sprites (vs. 16-bit wide)
-	ld	[rLCDC], a	; save LCD Config. Sprites are now visible. 
-
+	ld	a, [rLCDC]
+	or	LCDCF_ON
+	ld	[rLCDC], a	; turn LCD back on
 
 .loop
-	halt	; halts cpu until interrupt triggers (vblank)
- 	; by halting, we ensure that .loop only runs only each screen-refresh,
-	; so only 60fps. That makes the sprite movement here manageable
+	halt
 	nop
 
+	jp	.loop
 
-	ld	a,b
-	ld	[rSCX],a
-	inc	a
-	ld	b,a
 
-	jp	.loop		; start up at top of .loop label. Repeats each vblank
+; You can turn off LCD at any time, but it's bad for LCD if NOT done at vblank
+lcd_Stop:
+	ld	a, [rLCDC]	; LCD-Config
+	and	LCDCF_ON	; compare config to lcd-on flag
+	ret	z		; return if LCD is already off
+.wait4vblank
+	ldh	a, [rLY]   ; ldh is a faster version of ld if in [$FFxx] range
+	cp	145  ; are we at line 145 yet?  (finished drawing screen then)
+	jr	nz, .wait4vblank
+.stopLCD
+	ld	a, [rLCDC]
+	xor	LCDCF_ON	; XOR lcd-on bit with lcd control bits. (toggles LCD off)
+	ld	[rLCDC], a	; `a` holds result of XOR operation
+	ret
+
+
+ascii_tiles:
+	chr_IBMPC1	1, 8	; spit out 256 ascii characters here in rom
+				; (params 1, 8 specify we want all 256 chars)
+
+; ending label (ascii_tiles_end) gives us a memory address that we can use in
+; mem_Copy* routine. Since we need both starting and ending memory addresses
+; in order to calculate number of bytes to copy (stored in register-pair BC)
+ascii_tiles_end:
+
 
 ; ================ QUESTIONS FOR STUDENT ===========================
-; why is there visual junk on the screen?
-; why does the visual junk on-screen NOT move, while the background does?
-; what happens if you remove the "halt" command in the .loop? Why?
+; Why are there boxes all over the screen, but other characters in the middle?
+; Compare to the previous example -- which Tile# is blank here VS there?
