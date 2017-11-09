@@ -27,7 +27,7 @@ SECTION "ROM_entry_point", ROM0[$0100]	; ROM is given control from boot here
 ; The gameboy reads this info (before handing control over to ROM)
 SECTION "rom header", ROM0[$0104]
 	NINTENDO_LOGO
-	ROM_HEADER	"0123456789ABCDE"
+	ROM_HEADER	"  HELLO WORLD  "
 
 ; by convention, *.asm files add code to the ROM when included. *.inc files
 ; do not add code. They only define constants or macros. The macros add code
@@ -55,11 +55,41 @@ code_begins:
 	or	LCDCF_ON
 	ld	[rLCDC], a	; turn LCD back on
 
+
+	; now lets copy some text onto the screen
+	ld	hl, blank_line_text
+	ld	de, _SCRN0
+	ld	bc, 32	; copy 32 bytes starting at "blank_lines"
+	call	mem_CopyVRAM
+
+	ld	hl, hello_world_text
+	ld	de, _SCRN0 + SCRN_VX_B	; screen + one full screen's width (in bytes)
+	; means that DE points to 2nd row on-screen
+	ld	bc, 32	; again, make a guess that we want to copy 32 bytes
+	call	mem_CopyVRAM
+
+; So -- why does this work? We really just type out characters and they appear
+; on-screen? Yes... but let's go into details. Each character that we type is
+; stored in-rom as a number corresponding to it's ascii value. And we've loaded
+; tiles in VRAM whose tile# corresponds perfectly to ascii #'s. So there's a
+; one-to-one match between text stored in-ROM and the character-tiles we've
+; loaded into VRAM
+
 .loop
 	halt
 	nop
 
 	jp	.loop
+
+
+; define a string as a sequence of bytes in ROM
+; these sequences of bytes will correspond to background tiles representing
+; the characters typed into this string. Which means that we can display
+; ascii on-screen by simply copying the below bytes to address $9800 (_SCRN0)
+blank_line_text:
+	DB	"                             "
+hello_world_text:
+	DB	"        hello world!         "
 
 
 ; You can turn off LCD at any time, but it's bad for LCD if NOT done at vblank
@@ -81,13 +111,12 @@ lcd_Stop:
 ascii_tiles:
 	chr_IBMPC1	1, 8	; spit out 256 ascii characters here in rom
 				; (params 1, 8 specify we want all 256 chars)
-
-; ending label (ascii_tiles_end) gives us a memory address that we can use in
-; mem_Copy* routine. Since we need both starting and ending memory addresses
-; in order to calculate number of bytes to copy (stored in register-pair BC)
 ascii_tiles_end:
 
 
 ; ================ QUESTIONS FOR STUDENT ===========================
-; Why are there boxes all over the screen, but other characters in the middle?
-; Compare to the previous example -- which Tile# is blank here VS there?
+; Why does "hello world!" Appear so far to the left of the screen?
+;	Can you correct that?
+; What happens if you shorten the "      hello world!          " to just
+;	"hello world!"?    (Once done -- Where did the visual junk come from?)
+; Can you blank the entire screen?
