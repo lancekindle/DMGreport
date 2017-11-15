@@ -47,33 +47,20 @@ code_begins:
 	ld	de, _VRAM	; destination. Going to copy ascii to video ram
 	; bc = byte-count. Aka how many bytes to copy
 	ld	bc, ascii_tiles_end - ascii_tiles
-	call	mem_CopyMono	; copies monochrome tiles, specifically
-				; (our ascii set is monochrome)
-
+	call	mem_CopyVRAM
 
 	ld	a, [rLCDC]
 	or	LCDCF_ON
 	ld	[rLCDC], a	; turn LCD back on
 
+	; need to set palette from [black & white] to [four shades of grey]
+	ld	a, %11100100	; load pallette colors (to 4 shades)
+	; each shade is 2 bits. So we set darkest to lightest using 11100100
+	; 11 (black) 10 (dark) 01 (light) 00 (white)
+	ld	[rBGP], a	; set background pallet
+	ld	[rOBP0], a	; set sprite/obj pallete 0
+	ld	[rOBP1], a	; set sprite/ obj pallete 1
 
-	; now lets copy some text onto the screen
-	ld	hl, blank_line_text
-	ld	de, _SCRN0
-	ld	bc, 32	; copy 32 bytes starting at "blank_lines"
-	call	mem_CopyVRAM
-
-	ld	hl, hello_world_text
-	ld	de, _SCRN0 + SCRN_VX_B	; screen + one full screen's width (in bytes)
-	; means that DE points to 2nd row on-screen
-	ld	bc, 32	; again, make a guess that we want to copy 32 bytes
-	call	mem_CopyVRAM
-
-; So -- why does this work? We really just type out characters and they appear
-; on-screen? Yes... but let's go into details. Each character that we type is
-; stored in-rom as a number corresponding to it's ascii value. And we've loaded
-; tiles in VRAM whose tile# corresponds perfectly to ascii #'s. So there's a
-; one-to-one match between text stored in-ROM and the character-tiles we've
-; loaded into VRAM
 
 .loop
 	halt
@@ -81,15 +68,6 @@ code_begins:
 
 	jp	.loop
 
-
-; define a string as a sequence of bytes in ROM
-; these sequences of bytes will correspond to background tiles representing
-; the characters typed into this string. Which means that we can display
-; ascii on-screen by simply copying the below bytes to address $9800 (_SCRN0)
-blank_line_text:
-	DB	"                             "
-hello_world_text:
-	DB	"        hello world!         "
 
 
 ; You can turn off LCD at any time, but it's bad for LCD if NOT done at vblank
@@ -108,9 +86,38 @@ lcd_Stop:
 	ret
 
 
+; it's necessary to use a macro to generate characters. That way we can use
+; custom characters to represent the 4 shades of grey
+; (otherwise we'd have to use 0,1,2,3)
+chr_custom: MACRO
+	PUSHO	; push compiler options so that I can change the meaning of
+	; 0,1,2,3 graphics to something better. Like  .-*@
+	; change graphics characters. Start the line with ` (for graphics)
+	; . = 00
+	; - = 01
+	; * = 10
+	; @ = 11
+	OPT	g.~*@
+
+        DW      `...~~**@
+        DW      `..~~**@@
+        DW      `.~~**@@*
+        DW      `~~**@@**
+        DW      `~**@@**~
+        DW      `**@@**~~
+        DW      `*@@**~~.
+        DW      `@@**~~..
+
+	POPO	; restore compiler options
+
+	DW	`00011223	; an example of using standard graphics
+
+
+	ENDM
+
+
 ascii_tiles:
-	chr_IBMPC1	1, 8	; spit out 256 ascii characters here in rom
-				; (params 1, 8 specify we want all 256 chars)
+	chr_custom
 ascii_tiles_end:
 
 
