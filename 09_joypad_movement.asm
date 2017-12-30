@@ -100,6 +100,7 @@ code_begins:
 	push	af
 	and	PADF_RIGHT
 	jr	z, .skip_right
+
 	GetSpriteXAddr	copyright
 	inc	A
 	PutSpriteXAddr	copyright, a
@@ -145,3 +146,5 @@ jpad_GetKeys:
 	ld	a, b	; register A holds result. Each bit represents a key
 	ret
 
+; ================ QUESTIONS FOR STUDENT ===========================
+; Use the Arrow keys. The character moves!

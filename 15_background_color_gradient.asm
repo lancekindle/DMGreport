@@ -228,3 +228,5 @@ background_palette:
 
 ; ================ QUESTIONS FOR STUDENT ===========================
 ; Can you make the gradient change slower?
+; Can you make the gradient change to a different color?
+; Can you make it change multiple times for a more "rainbow spectrum"?

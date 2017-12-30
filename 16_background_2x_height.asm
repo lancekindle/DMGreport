@@ -80,7 +80,9 @@ vblank_handler:
 
 ; ================ QUESTIONS FOR STUDENT ===========================
 ; Why do we reset the rSCY line number to 45 every Vblank?
+;	(hint) at which line--SCY--does the nintendo logo appear?
 ; Why is the logo vibrating up and down like that?
+;	(hint) some internal state is not resetting each screen redraw
 ;	Modify the code so that the logo is stationary. (possible w/ 1 opcode)
 ; Can you make it so that the stretched logo also scrolls down?
 ; Can you make it such that the logo scrolls left?

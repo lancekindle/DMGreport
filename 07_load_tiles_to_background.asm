@@ -90,4 +90,5 @@ ascii_tiles_end:
 
 ; ================ QUESTIONS FOR STUDENT ===========================
 ; Why are there boxes all over the screen, but other characters in the middle?
-; Compare to the previous example -- which Tile# is blank here VS there?
+;	(hint) the nintendo logo used to be there...
+; Compare to the previous example -- which Tile# is blank now VS then?

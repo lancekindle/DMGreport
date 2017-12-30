@@ -229,6 +229,7 @@ background_palettes:
 
 
 ; ================ QUESTIONS FOR STUDENT ===========================
+; Why so many Halt/nop combos at the beginnning of the main loop?
 ; Does this example change just a single color, or the full 0th background
 ;	palette?
 ; Can you change this example to increment the red component instead?

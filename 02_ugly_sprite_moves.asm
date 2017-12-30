@@ -83,7 +83,7 @@ code_begins:
 
 .loop
 	halt	; halts cpu until interrupt triggers (vblank)
- 	; by halting, we ensure that .loop only runs only each screen-refresh,
+	; by halting, we ensure that .loop only runs only each screen-refresh,
 	; so only 60fps. That makes the sprite movement here manageable
 	nop
 
@@ -98,6 +98,7 @@ code_begins:
 
 ; ================ QUESTIONS FOR STUDENT ===========================
 ; why is there visual junk on the screen?
+;	(hint) are these displaying on the background tiles? (use bgb to view)
 ; can you change this so that Y moves twice as fast as X?
 ; can you change this so that sprite moves half as fast?
 ; what happens if you remove the "halt" command in the .loop? Why?

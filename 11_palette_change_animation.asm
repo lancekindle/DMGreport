@@ -129,5 +129,7 @@ ascii_tiles_end:
 ; Can you speed up the animation?
 ; What is causing those lines to move? Are we actually moving the background?
 ; Why do we "RLC [HL]" twice? What happens if we do it just once? Why?
+;	(hint) what does [HL] point to? How is that used?
+;	(x2 hint) how many bits represet each color?
 ; How many pixels do the lines move each iteration? (hint: see custom graphic)
 ; Move the background in sync such that the lines don't move, but the logo does.

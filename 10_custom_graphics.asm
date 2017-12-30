@@ -122,8 +122,4 @@ ascii_tiles_end:
 
 
 ; ================ QUESTIONS FOR STUDENT ===========================
-; Why does "hello world!" Appear so far to the left of the screen?
-;	Can you correct that?
-; What happens if you shorten the "      hello world!          " to just
-;	"hello world!"?    (Once done -- Where did the visual junk come from?)
 ; Can you blank the entire screen?

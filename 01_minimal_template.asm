@@ -55,3 +55,4 @@ code_begins:
 	nop
 	jp	.loop
 ; QUESTION TO STUDENT: when run, this example displays Nintendo's logo. How?
+;	(hint) when run on a CGB it shows nothing; on a DMG, the logo appears.
