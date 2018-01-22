@@ -98,8 +98,8 @@ rm $imageprefix*.png
 
 # ratio and delay are interlinked. 5 frames per 1 second?
 # then better make the delay 200ms
-ratio=10/1
-delay=10
+ratio=3/1
+delay=30
 
 ffmpeg -i $videofile -r $ratio $imageprefix%03d.png
 rm $videofile
@@ -114,7 +114,9 @@ convert -loop 0 -delay $delay $imageprefix*.png $clip
 # [optional] pngquantize it first to reduce # of colors
 echo resizing images
 for imagefile in $imageprefix*.png; do
-    convert $imagefile -resize 160x144 $imagefile
+    # -sample (instead of -resize) resizes but with pixel sampling
+    # so it'll retain the same colors
+    convert $imagefile -sample 160x144 $imagefile
 done
 #convert $imageprefix*.png -resize 160x144 $imageprefix*.png
 
@@ -130,8 +132,8 @@ rm $imageprefix*.png
 # compare filesizes. Keep smaller one
 clip_kb=`du -k "$clip" | cut -f1`
 clip2_kb=`du -k "$clip2" | cut -f1`
-let "smaller=$clip_kb<$clip2_kb"
-if [ $smaller ]; then
+# if [ "$clip_kb" -lt "$clip2_kb" ]; then
+if (( $clip_kb < $clip2_kb )); then
     echo ORIGINAL gif was smaller
     rm $clip2
 else
