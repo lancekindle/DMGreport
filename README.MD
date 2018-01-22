@@ -2,6 +2,10 @@
 
 DMG and CGB (Game Boy and Color GameBoy) game programming tutorials in assembly compiled with [RGBDS](https://github.com/rednex/rgbds)
 
+| ![minimal_background_scroll](images/minimal_background_scroll.asmclip.gif) | ![better_sprite_moves](images/better_sprite_moves.asmclip.gif) | ![palette_change_animation](images/palette_change_animation.asmclip.gif) | ![hello_world_background](images/hello_world_background.asmclip.gif) |
+| -- | -- | -- | -- |
+| ![color_palette_exploration](images/color_palette_exploration.asmclip.gif) | ![background_color_gradient](images/background_color_gradient.asmclip.gif) | ![custom_graphics](images/custom_graphics.asmclip.gif) | ![background_2x_height](images/background_2x_height.asmclip.gif) |
+
 The goal of this repository is to contain minimal code designed to teach the basics of creating assembly games for the GameBoy and GameBoy Color. This repository assumes two things: You'll be compiling with [RGBDS](https://github.com/rednex/rgbds) and that you'll be testing with [BGB](http://bgb.bircd.org/).
 
 We start with teaching how to scroll the background, then move to sprite movement, capturing input from the gameboy's joypad, and then setting colors on the background and sprites.
